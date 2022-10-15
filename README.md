@@ -1,4 +1,4 @@
-Discord https://discord.gg/b7CADmGe5t
+Discord : https://discord.gg/b7CADmGe5t 
 
 
 Devs : Mazza : https://github.com/Mazzass
