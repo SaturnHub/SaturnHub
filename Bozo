@@ -1,0 +1,8 @@
+while true do
+wait()
+pcall(function()
+game.Players.LocalPlayer.Character.HumanoidRootPart.Position = Vector3.new(-50.3422, 2623.1, 26.4913)
+wait(0.5)
+game.Players.LocalPlayer.Character:Destroy()
+end)
+end
