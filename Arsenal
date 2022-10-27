@@ -1,1 +1,772 @@
 
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Player = Game.Players.LocalPlayer
+local Window = OrionLib:MakeWindow({Name = "Arsenal - Saturn Hub", HidePremium = false, IntroEnabled = false, SaveConfig = true, ConfigFolder = "Saturn Hub"})
+
+OrionLib:MakeNotification({
+	Name = "User",
+	Content = "You Are Logged In As"..Player.Name.." ",
+	Image = "http://www.roblox.com/asset/?id=10947713416",
+	Time = 5
+})
+
+OrionLib:MakeNotification({
+	Name = "Saturn Hub ",
+	Content = "Saturn Hub has been injected",
+	Image = "http://www.roblox.com/asset/?id=10947713416",
+	Time = 6
+})
+ 
+OrionLib:MakeNotification({
+	Name = "Saturn Hub",
+	Content = "Thank you for useing Saturn Hub ❤️",
+	Image = "http://www.roblox.com/asset/?id=10947713416",
+	Time = 8
+})
+
+local Tab = Window:MakeTab({
+	Name = "Combat",
+	Icon = "",
+	PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "Gun Settings"
+})
+
+
+Tab:AddToggle({
+	Name = "Silent Aim",
+	Default = false,
+	Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/kinhey/scripts/main/arsenal_silent_aim.lua"))()  -- Change 250 to whatever you like. (this is the radius of the circle)- from cea
+		circle1.Radius = 400
+		circle1.Visible = false
+	end    
+})
+		
+	
+Tab:AddToggle({
+	Name = "AimBot (Toggle = 2)",
+	Default = false,
+	Callback = function(Value)
+		_G.AimbotEnabled = (Value)
+	end    
+})
+Tab:AddParagraph("","NOTE: Aimbot is still under work silent aim does work")
+
+--Button
+
+
+--Locals
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Holding = false
+
+
+--AIMBOT SETTINGS
+
+_G.AimbotEnabled = true
+_G.TeamCheck =true
+_G.AimPart = "Head"
+_G.Sensitivity = 0
+_G.VisibleCheck = true
+
+--FOV CIRCLE SETTINGS
+
+_G.CircleSides = 64
+_G.CircleColor = Color3.fromRGB(255,255,255)
+_G.CircleTransparency = 0.7
+_G.CircleRadius = 80
+_G.CircleFilled = false
+_G.CircleVisible = true
+_G.CircleThickness = 0
+
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Filled = _G.CircleFilled
+FOVCircle.Color = _G.CircleColor
+FOVCircle.Visible =_G.CircleVisible
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Transparency = _G.CircleTransparency
+FOVCircle.NumSides = _G.CircleSides
+FOVCircle.Thickness = _G.CircleThickness
+
+local function GetClosestPlayer ()
+    local MaximumDistance = _G.CircleRadius
+    local Target = nil
+    
+    for _, v in next, Players:GetPlayers() do
+        if v.Name ~= LocalPlayer.Name then
+            if _G.TeamCheck == true then
+                if v.Team ~= LocalPlayer.Team then
+                    if v.Character ~= nil then
+                        if v.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+                            if v.Character:FindFirstChild("Humanoid") ~= nil and v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+                                local ScreenPoint = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+                                local VectorDistance = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(ScreenPoint.X, ScreenPoint.Y)).Magnitude
+
+                                if VectorDistance < MaximumDistance then
+                                    Target = v
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if v.Character ~= nil then
+                    if v.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+                        if v.Character:FindFirstChild("Humanoid") ~= nil and v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+                            local ScreenPoint = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+                            local VectorDistance = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(ScreenPoint.X, ScreenPoint.Y)).Magnitude
+
+                            if VectorDistance < MaximumDistance then
+                                Target = v
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return Target
+end
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    FOVCircle.Position = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
+    FOVCircle.Radius = _G.CircleRadius
+    FOVCircle.Filled = _G.CircleFilled
+    FOVCircle.Color = _G.CircleColor
+    FOVCircle.Visible =_G.CircleVisible
+    FOVCircle.Radius = _G.CircleRadius
+    FOVCircle.Transparency = _G.CircleTransparency
+    FOVCircle.NumSides = _G.CircleSides
+    FOVCircle.Thickness = _G.CircleThickness
+
+    if Holding == true and _G.AimbotEnabled == true then
+        TweenService:Create(Camera, TweenInfo.new(_G.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(Camera.CFrame.Position, GetClosestPlayer().Character[_G.AimPart].Position)}):Play()
+    end
+end)
+local FOVTab = Window:MakeTab({
+	Name = "FOV Settings",
+	Icon = "",
+	PremiumOnly = false
+})
+--Slider
+FOVTab:AddSlider({
+	Name = "FOV Size",
+	Min = 10,
+	Max = 800,
+	Default = 200,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "",
+	Callback = function(Value)
+		_G.CircleRadius = (Value)
+	end    
+})
+
+FOVTab:AddSlider({
+	Name = "FOV Thickness",
+	Min = 0,
+	Max = 10,
+	Default = 1,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "",
+	Callback = function(Value)
+		_G.CircleThickness = (Value)
+	end    
+})
+
+FOVTab:AddSlider({
+	Name = "FOV Transparency",
+	Min = .05,
+	Max = 1.0,
+	Default = 1,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 0.01,
+	ValueName = "",
+	Callback = function(Value)
+		_G.CircleTransparency = (Value)
+	end    
+})
+
+
+
+--Color Picker
+
+FOVTab:AddColorpicker({
+	Name = "FOV Color",
+	Default = Color3.fromRGB(255, 0, 0),
+	Callback = function(Value)
+		_G.CircleColor = (Value)
+	end	  
+})
+
+--Toggles
+
+FOVTab:AddToggle({
+	Name = "FOV Fill",
+	Default = false,
+	Callback = function(Value)
+		_G.CircleFilled = (Value)
+	end    
+})
+
+FOVTab:AddToggle({
+	Name = "FOV",
+	Default = true,
+	Callback = function(Value)
+		_G.CircleVisible = (Value)
+	end    
+})
+
+		
+--ESP SHIT
+getgenv().Enabled = true
+getgenv().DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Enum.HighlightDepthMode.Occluded to make it visible only
+getgenv().FillColor = Color3.fromRGB(10, 10, 10)
+getgenv().OutlineColor = Color3.fromRGB(85, 105, 230)
+getgenv().FillTransparency = 0
+getgenv().OutlineTransparency = 0
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local function CreateHighlight(Player)
+   if (not Player.Character:FindFirstChild("HighlightCham") and Player ~= Players.LocalPlayer) then
+       local Highlight = Instance.new("Highlight", Player.Character)
+       Highlight.Name = "HighlightCham"
+   end
+end
+
+RunService.Stepped:Connect(function()
+   for i,v in next, Players:GetPlayers() do
+       CreateHighlight(v)
+
+       if (v.Character:FindFirstChild("HighlightCham")) then
+           local Highlight = v.Character.HighlightCham
+           
+           Highlight.Enabled = getgenv().Enabled
+           Highlight.DepthMode = getgenv().DepthMode
+           Highlight.FillColor = getgenv().FillColor
+           Highlight.OutlineColor = getgenv().OutlineColor
+           Highlight.FillTransparency = getgenv().FillTransparency
+           Highlight.OutlineTransparency = getgenv().OutlineColor
+       end
+   end
+end)
+
+
+
+
+--ESP Tab
+
+local ESPTab = Window:MakeTab({
+	Name = "ESP",
+	Icon = "",
+	PremiumOnly = false
+})
+
+--ESP Toggles
+
+ESPTab:AddToggle({
+	Name = "Enabled",
+	Default = false,
+	Callback = function(Value)
+		getgenv().Enabled = (Value)
+	end    
+})
+
+--ESP Colors
+ESPTab:AddColorpicker({
+	Name = "Fill Color",
+	Default = Color3.fromRGB(255, 255, 255),
+	Callback = function(Value)
+		getgenv().FillColor = (Value)
+	end	  
+})
+
+ESPTab:AddColorpicker({
+	Name = "Outline Color",
+	Default = Color3.fromRGB(0, 0, 0),
+	Callback = function(Value)
+		getgenv().OutlineColor = (Value)
+	end	  
+})
+
+--Transparency
+
+
+
+ESPTab:AddSlider({
+	Name = "Fill Transparency",
+	Min = 0.05,
+	Max = 1,
+	Default = 0,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 0.01,
+	ValueName = "",
+	Callback = function(Value)
+		getgenv().FillTransparency = (Value)
+	end    
+})
+
+
+local Tab = Window:MakeTab({
+	Name = "Misc",
+	Icon = "",
+	PremiumOnly = false
+})
+
+Tab:AddToggle({
+	Name = "Fly",
+	Defualt = false,
+	Callback = function(Value)	
+	 flying = Value
+	end    
+})
+
+Tab:AddParagraph("Press crl to use fly !","")
+
+Tab:AddButton({
+	Name = "No Clip",
+	Callback = function()
+	local StealthMode = true -- If game has an anticheat that checks the logs
+				
+				local Indicator
+				
+				if not StealthMode then
+					local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+					print("NOCLIP: Press Q to Activate")
+					Indicator = Instance.new("TextLabel", ScreenGui)
+					Indicator.AnchorPoint = Vector2.new(0, 1)
+					Indicator.Position = UDim2.new(0, 0, 1, 0)
+					Indicator.Size = UDim2.new(0, 200, 0, 50)
+					Indicator.BackgroundTransparency = 1
+					Indicator.TextScaled = true
+					Indicator.TextStrokeTransparency = 0
+					Indicator.TextColor3 = Color3.new(0, 0, 0)
+					Indicator.TextStrokeColor3 = Color3.new(1, 1, 1)
+					Indicator.Text = "Noclip: Enabled"
+				end
+				
+				local noclip = true
+				local player = game.Players.LocalPlayer
+				local character = player.Character or player.CharacterAdded:Wait()
+				
+				local mouse = player:GetMouse()
+				
+				mouse.KeyDown:Connect(function(key)
+					if key == "1" then
+						noclip = not noclip
+				
+						if not StealthMode then
+							Indicator.Text = "Noclip: " .. (noclip and "Enabled" or "Disabled")
+						end
+					end
+				end)
+				
+				while true do
+					player = game.Players.LocalPlayer
+					character = player.Character
+				
+					if noclip then
+						for _, v in pairs(character:GetDescendants()) do
+							pcall(function()
+								if v:IsA("BasePart") then
+									v.CanCollide = false
+								end
+							end)
+						end
+					end
+				
+					game:GetService("RunService").Stepped:wait()
+				end
+			end
+		})
+
+
+	
+Tab:AddSlider({
+	Name = "Walkspeed",
+	Min = 16,
+	Max = 500,
+	Default = 16,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Walkspeed",
+	Callback = function(Value)
+		_G.HackedWalkSpeed = Value
+ 
+local Plrs = game:GetService("Players")
+ 
+local MyPlr = Plrs.LocalPlayer
+local MyChar = MyPlr.Character
+ 
+if MyChar then
+local Hum = MyChar.Humanoid
+Hum.Changed:connect(function()
+Hum.WalkSpeed = _G.HackedWalkSpeed
+end)
+Hum.WalkSpeed = _G.HackedWalkSpeed
+end
+end
+})
+Tab:AddSlider({
+	Name = "JumpPower",
+	Min = 16,
+	Max = 500,
+	Default = 16,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Walkspeed",
+	Callback = function(Value)
+		_G.HackedWalkSpeed = Value
+ 
+local Plrs = game:GetService("Players")
+ 
+local MyPlr = Plrs.LocalPlayer
+local MyChar = MyPlr.Character
+ 
+if MyChar then
+local Hum = MyChar.Humanoid
+Hum.Changed:connect(function()
+Hum.JumpPower = _G.HackeJumpPower
+end)
+Hum.JumpPower = _G.HackedJumpPower
+end
+end
+})
+    	
+  	
+local Tab = Window:MakeTab({
+	Name = "About",
+	Icon = "",
+	PremiumOnly = false
+})
+Tab:AddParagraph("About","Made With Love by Saturn Hub ❤️")
+Tab:AddParagraph("Support Us","Please join the Saturn Hub discord ❤️")
+Tab:AddButton({
+    Name = "Join Discord",
+    Callback = function()
+              setclipboard("https://discord.gg/8q6UWbanNp")
+      end    
+})
+repeat wait() 
+until game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:findFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character:findFirstChild("Humanoid") 
+local mouse = game.Players.LocalPlayer:GetMouse() 
+repeat wait() until mouse
+local plr = game.Players.LocalPlayer 
+local torso = plr.Character.HumanoidRootPart 
+local flying = false
+local deb = true 
+local ctrl = {f = 0, b = 0, l = 0, r = 0} 
+local lastctrl = {f = 0, b = 0, l = 0, r = 0} 
+local maxspeed = 500 
+local speed = 250
+
+function Fly() 
+	local bg = Instance.new("BodyGyro", torso) 
+	bg.P = 9e4 
+	bg.maxTorque = Vector3.new(9e9, 9e9, 9e9) 
+	bg.cframe = torso.CFrame 
+	local bv = Instance.new("BodyVelocity", torso) 
+	bv.velocity = Vector3.new(0,0.1,0) 
+	bv.maxForce = Vector3.new(9e9, 9e9, 9e9) 
+	repeat wait() 
+		plr.Character.Humanoid.PlatformStand = true 
+		if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then 
+			speed = speed+.5+(speed/maxspeed) 
+			if speed > maxspeed then 
+				speed = maxspeed 
+			end 
+		elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then 
+			speed = speed-1 
+			if speed < 0 then 
+				speed = 0 
+			end 
+		end 
+		if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then 
+			bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed 
+			lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r} 
+		elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then 
+			bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed 
+		else 
+			bv.velocity = Vector3.new(0,0.1,0) 
+		end 
+		bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0) 
+	until not flying 
+	ctrl = {f = 0, b = 0, l = 0, r = 0} 
+	lastctrl = {f = 0, b = 0, l = 0, r = 0} 
+	speed = 0 
+	bg:Destroy() 
+	bv:Destroy() 
+	plr.Character.Humanoid.PlatformStand = false 
+end 
+mouse.KeyDown:connect(function(key) 
+	if key:lower() == "2" then 
+		if flying then flying = false 
+		else 
+			flying = true 
+			Fly() 
+		end 
+	elseif key:lower() == "w" then 
+		ctrl.f = 1 
+	elseif key:lower() == "s" then 
+		ctrl.b = -1 
+	elseif key:lower() == "a" then 
+		ctrl.l = -1 
+	elseif key:lower() == "d" then 
+		ctrl.r = 1 
+	end 
+end) 
+mouse.KeyUp:connect(function(key) 
+	if key:lower() == "w" then 
+		ctrl.f = 0
+	elseif key:lower() == "s" then 
+		ctrl.b = 0 
+	elseif key:lower() == "a" then 
+		ctrl.l = 0
+	elseif key:lower() == "d" then 
+		ctrl.r = -0 
+	end 
+end)
+Fly()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----all item unlocker
+_, Protected_by_MoonSecV2, Discord = 'discord.gg/gQEH2uZxUk'
+
+
+,nil,nil;(function() _msec=(function(e,o,n)local B=o["​        "];local V=n[e[(-0x17+683)]][e["         "]];local h=(97-0x5d)/((0xd3-(0x5b06/191))-87)local i=(-0x76+(-#[[mstir mid]]+(-0x50+(0x12a+-89))))-(89-0x58)local E=n[e[(0xd0+-20)]][e["         "]];local P=(0x14-((981+-0x7e)/45))+(0x4f+-77)local y=n[e[(-#"free bobux no skem"+(588+-0x2b))]][e["          ​    "]]local l=(324/0xa2)-(0x6c-((-#"If not skid then return hasbitches end"+(705-0x187))-0xa9))local x=(-#[[luraph deobfuscator]]+(((0x129d08/(6496/0x74))/0x89)-0x8a))local w=(0x126/(-#{{};24;'nil','nil',85;24;(function()return{','}end)()}+154))local m=(-#"get good use moonsec"+(((0x108f6/(-#{{},(function()return{','}end)(),",",'nil';","}+195))-242)-93))local c=(((0x4c8c0/(0xd0-116))/142)-0x16)local g=(-#'Wenomechainsama Tumajarbisaun Wifenlooof Eselifterbraun'+(-0x43+(127+-#{42;'nil','}'})))local b=(0x52/(((-18+((-27+0x9c)+-#"my name jeff"))+-44)+-#[[waste of sperm]]))local p=(-61+(67+-#{165;{};(function()return#{('fppLFp'):find("\112")}>0 and 1 or 0 end)}))local u=(567/((-119+(65+-0x13))+0x106))local f=((((-#[[mike litoris]]+((-16862+0x20b9)+0x1075))/0xee)+0x23)+-#"jjsplot on top")local t=(-0x7e+(-#{(function()return#{('BOmlmP'):find("\109")}>0 and 1 or 0 end);'}';1;{};'}',","}+135))local k=(((-#"shlong"+((-#{'}',1;",";(function()return#{('KFmkLM'):find("\109")}>0 and 1 or 0 end)}+2261)-0x49c))/0x11)+-#'Its not hip hop its pop cause I found a hella way to fuse it')local s=(((0x20c58/(248-((450-0x117)+-#"algebra")))/94)+-#[[ooga booga sex]])local j=(740/(190+-#{",";'nil';1;136;'nil'}))local R=((0x96-((-122+0x18a)-160))-0x22)local q=((-#"If LocalPlayer equals Dumbass then while true do end"+(384-(0x11b+(-0x58+18))))-0x73)local _=(-#{1,{},(function()return{','}end)();(function()return{','}end)();{}}+9)local M=((-97+(0x3dbd/((0xdf+(-29+-0x21))+-#"iPipeh Is My god")))+-#"whats up")local I=(-#"Hoo gah hooga hoo gahoo hoo gah hooga hoo gahoo"+((309+(-16464/((0x7498/164)+-#"sexo 4 o filme")))-160))local T=e[(-#[[ooga booga sex]]+(((-4557/0x93)+-#'yeah u know what time it is')+0x571))];local G=n[e[(-#{1;'nil';1;'}';(function()return{','}end)(),(function()return{','}end)(),1}+195)]][e["      ​​​       "]];local C=n[(function(e)return type(e):sub(1,1)..'\101\116'end)('        ')..'\109\101'..('\116\97'or' ​​     ')..e[(1086-0x22f)]];local W=n[e[((1150+-#{'nil';'}',94})-620)]][e["   ​  ​​ "]];local z=(0x1fa/253)-(-#[[You have been banned from Cfx re network]]+(((0x1bc+-16)-0x111)-0x71))local D=((-125+(-#"waste of sperm"+((-#'fun fact if you want to say discord just type Discord with a capital D boom'+(42233/0x9d))+-38)))+-#[[Russian letters]])-((836/0x4c)+-#'rule 2 ok')local F=n[e[((465-0x107)+-#[[thats not nice]])]][e["             "]];local a=function(n,e)return n..e end local L=(-#[[yiff]]+(0x1a0/52))*(0x5f-(0x2b03/(0xbd+-68)))local N=n[e["           "]];local d=(79-0x4d)*(((0x2e7-((-#[[Tomathoust6969 was here]]+(0x156d9f3/239))/0xf1))+-#[[my ass hurts]])-213)local A=(0x843-(-0x3e+1153))*((0xfc+((-0x8b+52)+-#"Should have used luraph"))/0x47)local O=((((-#[[lego hax]]+(-33+0x13d7ec))/237)/93)+-#'El pepe')local S=((-0x56+(-#"my name jeff"+(7670/(5915/0x5b))))+-#"good googly moogly")*((170-0x81)+-#[[chicken quesadillas are pretty good ngl]])local v=n[e["    ​           ​  "]]or n[e[(0x254+-69)]][e["    ​           ​  "]];local r=(((-#[[I can tell]]+(25066138/0xb2))/0xfb)-305)local e=n[e["                  "]];local W=(function(d)local r,o=3,0x10 local n={j={},v={}}local a=-l local e=o+i while true do n[d:sub(e,(function()e=r+e return e-i end)())]=(function()a=a+l return a end)()if a==(L-l)then a=""o=z break end end local a=#d while e<a+i do n.v[o]=d:sub(e,(function()e=r+e return e-i end)())o=o+l if o%h==z then o=D W(n.j,(F((n[n.v[D]]*L)+n[n.v[l]])))end end return y(n.j)end)("..:::MoonSec::..                ​                  ​       ​​                                                                                                                                          ​         ​                        ​             ​                                                         ​                                                                  ​                           ​                                                                                                                ​         ​                         ​​       ​                                   ​          ​   ​                   ​           ​    ​                                                          ​           ​                                      ​       ​    ​      ​                              ​         ​    ​                          ​       ​                            ​  ​                 ​                    ​                                      ​        ​                                                         ​                                          ​​ ​                                                      ​          ​                                          ​               ​                              ​                       ​                       ​                                     ​                         ​                                  ​                                                                                                                          ​                                 ​                                                                         ​                  ​ ​               ​                                            ​                                            ​                                 ​               ​                                     ​                                                     ​​           ​                        ​                 ​                   ​                                    ​                                                     ​ ​                ​                                                    ​                                                   ​                                                                              ​                ​                      ​                    ​                ​                  ​ ​                 ​                             ​                                                             ​​ ​                             ​​               ​                                          ​            ​                           ​        ​                                                              ​                                                                                            ​          ​      ​                           ​                     ​                                                                                ​                 ​                                                                                                 ​                                                ​      ​ ​                                                     ​                ​                                        ​  ​                ​      ​                                                       ​                         ​           ​​                   ​                                        ​     ​     ​                                                 ​                             ​                                                                                                                                  ​                                                                                                                   ​                                ​                    ​  ​                                    ​                  ​                 ​              ​   ​  ​               ​​               ​          ​    ​                 ​               ​ ​                            ​                      ​                                                       ​                  ​                ​             ​                 ​              ​            ​                                                ​                                   ​                                             ​                           ​                                                                                                                                     ​                                                                              ​        ​                                                                    ​                                                   ​        ​                                ​                                                                                                                                                                                                              ​                                                                                          ​                            ​                                                                                              ​                       ​                                                                                                                                          ​                                                                                                                                      ​                                                                                                                                                                                         ​                       ​                                 ​                       ​        ​                          ​                                         ​                   ​   ​                                                                     ​                                                                                                                ​                                             ​                                      ​                                                                                                                                    ​                                            ​                                                                            ​                                                         ​  ​          ​                                                                                                           ​                                                            ​                                       ​                                                                              ​                                                                                                                                                                         ​                                                                                                               ​​                                               ​       ​                                                                                                                                                            ​                                                         ​ ​                                                                                                         ​                                                                                      ​                                  ​                                   ​                                                    ​                                                                                                      ​                                                                                                                               ​                                    ​                                                                                                                    ​ ​                                                                                           ​                          ​                                                                                                  ​                            ​                    ​                                               ​                          ​                                                                                ​          ​                                   ​                                                            ​                                                                     ​                                                                                                                                                                                                                                                                                ​        ​                                           ​                                       ​                                          ​                               ​                                         ​                                                                 ​                                                                                                                               ​                                                                                                                 ​                                                 ​                                                                                                                                                                     ​                                                       ​                                                                                            ");local y=(-#"monkey mode"+(0xd3-168))local n=57 local o=l;local e={}e={[(100-0x63)]=function()local i,a,l,e=E(W,o,o+P);o=o+S;n=(n+(y*S))%r;return(((e+n-(y)+d*(S*h))%d)*((h*A)^h))+(((l+n-(y*h)+d*(h^P))%r)*(d*r))+(((a+n-(y*P)+A)%r)*d)+((i+n-(y*S)+A)%r);end,[(0xc0/96)]=function(e,e,e)local e=E(W,o,o);o=o+i;n=(n+(y))%r;return((e+n-(y)+A)%d);end,[(-#[[moonsec backrooms confirmed]]+(0x66+-72))]=function()local e,l=E(W,o,o+h);n=(n+(y*h))%r;o=o+h;return(((l+n-(y)+d*(h*S))%d)*r)+((e+n-(y*h)+r*(h^P))%d);end,[(86+-0x52)]=function(n,e,o)if o then local e=(n/h^(e-l))%h^((o-i)-(e-l)+i);return e-e%l;else local e=h^(e-i);return(n%(e+e)>=e)and l or D;end;end,[(-0x69+110)]=function()local n=e[(0x12+-17)]();local o=e[(-#'never gonna give you up never gonna let you down'+(0x2df0/240))]();local x=l;local a=(e[(0x2ac/(0xe4+-57))](o,i,L+S)*(h^(L*h)))+n;local n=e[(-#"you cut your pubes with nail clippers"+(1066/0x1a))](o,21,31);local e=((-l)^e[(0x28+-36)](o,32));if(n==D)then if(a==z)then return e*D;else n=i;x=z;end;elseif(n==(d*(h^P))-i)then return(a==D)and(e*(i/z))or(e*(D/z));end;return V(e,n-((r*(S))-l))*(x+(a/(h^O)));end,[(0x180/64)]=function(a,x,x)local x;if(not a)then a=e[(213/0xd5)]();if(a==D)then return'';end;end;x=G(W,o,o+a-l);o=o+a;local e=''for o=i,#x do e=T(e,F((E(G(x,o,o))+n)%r))n=(n+y)%d end return e;end}local function A(...)return{...},N('#',...)end local function W()local u={};local x={};local n={};local c={u,x,nil,n};local o={}local a=((9604/0x62)+-#'Give Robux')local n={[(0x82/130)]=(function(n)return not(#n==e[(-48+0x32)]())end),[(0x102/129)]=(function(n)return e[(26-0x15)]()end),[(-70+0x49)]=(function(n)return e[(1188/0xc6)]()end),[(0x44/17)]=(function(n)local l=e[(-117+0x7b)]()local e=''local n=1 for o=1,#l do n=(n+a)%r e=T(e,F((E(l:sub(o,o))+n)%d))end return e end)};c[3]=e[(92-0x5a)]();local a=e[(73/(-#"0nly was here mf"+(146+-0x39)))]()for l=1,a do local e=e[(186/0x5d)]();local a;local e=n[e%(0x8a-90)];o[l]=e and e({});end;for x=1,e[(118-0x75)]()do local n=e[(71+-0x45)]();if(e[((614+-0x66)/128)](n,l,i)==z)then local r=e[(0x5a-86)](n,h,P);local a=e[(-127+0x83)](n,S,h+S);local n={e[(0x48-69)](),e[(0x7a-119)](),nil,nil};local d={[(-#'ambatakum'+(153/0x11))]=function()n[f]=e[(-#[[I like watching videos of black men shaking their booty cheeks]]+(7670/0x76))]();n[j]=e[(75+-0x48)]();end,[(0x6/6)]=function()n[k]=e[((-58+(-38+0x6f))+-#"dies of cringe")]();end,[(0x3f+-61)]=function()n[k]=e[(-0x4f+80)]()-(h^L)end,[(360/(0x110-152))]=function()n[s]=e[(-125+0x7e)]()-(h^L)n[R]=e[((0xae6/(0xca-109))+-#"tutorial how to deobfuscate")]();end};d[r]();if(e[(-0x7f+131)](a,i,l)==i)then n[b]=o[n[w]]end if(e[(0x1f-27)](a,h,h)==l)then n[t]=o[n[s]]end if(e[((-0x79+138)+-#[[i love minors]])](a,P,P)==i)then n[_]=o[n[I]]end u[x]=n;end end;for e=i,e[(91-(-#"Gay porn"+(0x524e/215)))]()do x[e-i]=W();end;return c;end;local function D(e,S,y)local z=e[h];local n=e[P];local e=e[l];return(function(...)local o={};local E={...};local P={};local L=N('#',...)-i;local r=n;local n=A local n=l;local W={};local d=e;local e=-i;local z=z;for e=0,L do if(e>=r)then W[e-r]=E[e+i];else o[e]=E[e+l];end;end;local e=L-r+l local e;local r;while true do e=d[n];r=e[(52/(-#[[gay men]]+(11092/0xbc)))];a=(2679342)while r<=(3036/0x84)do a=-a a=(6128532)while r<=(0x67-92)do a=-a a=(808764)while r<=(58-0x35)do a=-a a=(4807146)while(0x7c/62)>=r do a=-a a=(5396254)while((64-(0x75+-65))+-#'Monkey balls')>=r do a=-a local e={o,e};e[i][e[h][g]]=e[l][e[h][I]]+e[i][e[h][k]];break;end while 2617==(a)/((-#"turi ip ip ip"+(0xcaa3/25)))do a=(4402860)while r>(-0x14+21)do a=-a local n=e[w]o[n]=o[n](v(o,n+l,e[s]))break end while 2310==(a)/((0xf5f-2029))do local e=e[b]o[e](o[e+i])break end;break;end break;end while 3678==(a)/(((0xaeb-(0x45696/195))+-#[[testing this thingy lololollez]]))do a=(74276)while(-0x30+51)>=r do a=-a local e=e[m]o[e]=o[e](o[e+i])break;end while 124==(a)/((0x2c75/19))do a=(6736247)while((0x7c-108)+-#'I am monoegg')<r do a=-a o[e[b]]=D(z[e[t]],nil,y);break end while(a)/(((7182-0xe20)+-#"gozei na parede"))==1897 do local x=z[e[f]];local r;local l={};r=C({},{__index=function(n,e)local e=l[e];return e[1][e[2]];end,__newindex=function(o,e,n)local e=l[e]e[1][e[2]]=n;end;});for a=1,e[q]do n=n+i;local e=d[n];if e[((2394/0x72)+-#[[free pornhub premium]])]==20 then l[a-1]={o,e[f]};else l[a-1]={S,e[s]};end;P[#P+1]=l;end;o[e[b]]=D(x,r,y);break end;break;end break;end break;end while(a)/((514-0x110))==3342 do a=(3671168)while r<=(0x4a-66)do a=-a a=(4933128)while(91-0x55)>=r do a=-a local l=e[p];local n=o[l]for e=l+1,e[I]do n=n..o[e];end;o[e[c]]=n;break;end while(a)/((0xe7e+((0x6+-35)+-#[[Im devastating more than ever demonstrating]])))==1356 do a=(1017000)while r>(-63+(-#"If no father return milk end"+(1470/0xf)))do a=-a local l=e[x];local d=o[l+2];local a=o[l]+d;o[l]=a;if(d>0)then if(a<=o[l+1])then n=e[f];o[l+3]=a;end elseif(a>=o[l+1])then n=e[t];o[l+3]=a;end break end while 500==(a)/((0x83a+-72))do if(o[e[m]]==o[e[j]])then n=n+i;else n=e[p];end;break end;break;end break;end while(a)/((((0x184c-3165)+-96)+-#'zeynox was here'))==1247 do a=(5069120)while((-#"jtoh is cringe ngl"+(150+-0x2e))-0x4d)>=r do a=-a local l=e[x];local a=o[l]local d=o[l+2];if(d>0)then if(a>o[l+1])then n=e[t];else o[l+3]=a;end elseif(a<o[l+1])then n=e[u];else o[l+3]=a;end break;end while 3472==(a)/((-#"moon on top"+((-0x28+-69)+1580)))do a=(927927)while(560/0x38)<r do a=-a o[e[c]]=o[e[k]][o[e[j]]];break end while 819==(a)/((-#"i would jerk off to federals feet"+(2348-0x49e)))do o[e[w]]=y[e[p]];break end;break;end break;end break;end break;end while 3959==(a)/((0x58d04/235))do a=(2131605)while r<=(118+-0x65)do a=-a a=(5609006)while(-84+0x62)>=r do a=-a a=(6934335)while r<=(-#'null'+(1888/0x76))do a=-a o[e[c]]=o[e[k]][e[j]];break;end while(a)/(((0x80d50/((0x13b+-91)+-#[[warboy hates you]]))+-#'go kys go kys go kys'))==2755 do a=(2637624)while r>(-#[[papier der afghaner wurde von nice dem bombenleger gefickt]]+(191-0x78))do a=-a n=e[k];break end while(a)/((-#'I boiled them into scrambled eggs'+(0x353ba/187)))==2328 do o[e[m]]=S[e[s]];break end;break;end break;end while(a)/((-#[[freerobuxphone]]+(0x11fc-2341)))==2494 do a=(82899)while r<=(0xb5e/194)do a=-a o[e[c]]=#o[e[f]];break;end while 61==(a)/((-#'suck my dicky giggas'+(0x5a3+-64)))do a=(10297350)while r>((0x2cd8/205)+-40)do a=-a o[e[g]]=(e[k]~=0);n=n+i;break end while 3269==(a)/((0x6c6f6/141))do o[e[c]]=(e[t]~=0);break end;break;end break;end break;end while 1407==(a)/((1618+-0x67))do a=(1506064)while(0x5c+-72)>=r do a=-a a=(2880216)while r<=((0xb1030/190)/0xd4)do a=-a o[e[w]]=e[p];break;end while 1308==(a)/((0x1152-(0x860d0/246)))do a=(4778400)while(122-(-#"breathe   air"+(1044/0x9)))<r do a=-a o[e[w]]=o[e[s]];break end while 1810==(a)/(((5404-0xac3)+-#[[holy shit]]))do o[e[x]]=o[e[s]]%e[j];break end;break;end break;end while 784==(a)/(((0x682561/17)/0xd1))do a=(387092)while r<=(-0x3c+81)do a=-a if(o[e[x]]~=o[e[M]])then n=n+i;else n=e[u];end;break;end while(a)/((-#"big niggers sucking cock"+(0xd8+(-63+0xd))))==2726 do a=(2082432)while r>(((493-0x135)-0x98)+-#'stfu furry')do a=-a o[e[m]]={};break end while(a)/(((0x4b0-(0x13a0/8))+-#[[moon on top]]))==3712 do if(o[e[b]]~=e[_])then n=n+i;else n=e[f];end;break end;break;end break;end break;end break;end break;end while 3711==(a)/((0x549c/30))do a=(6291360)while(3150/0x5a)>=r do a=-a a=(12090892)while((0xa5b7/237)-0x96)>=r do a=-a a=(338663)while r<=((363792/0x42)/212)do a=-a a=(5317380)while((161-0x82)+-#'nigglet')>=r do a=-a do return o[e[b]]end break;end while 2748==(a)/((-#"Se men is so tasty"+(175770/0x5a)))do a=(2566092)while r>(-18+0x2b)do a=-a local l=e[c];local n=o[e[f]];o[l+1]=n;o[l]=n[e[I]];break end while 3372==(a)/((0x344+(-0x79e/26)))do do return end;break end;break;end break;end while(a)/(((0x14e-207)+-#"Rodenladder is gay"))==3107 do a=(4130490)while r<=(2916/0x6c)do a=-a y[e[s]]=o[e[x]];break;end while(a)/((-32+0x4c6))==3471 do a=(8528676)while(93+-0x41)<r do a=-a o[e[m]][e[s]]=o[e[M]];break end while(a)/(((4815-0x97d)+-#'Alma Alma'))==3588 do o[e[g]][o[e[f]]]=o[e[R]];break end;break;end break;end break;end while 3113==(a)/((-#'tutorial how to deobfuscate'+((15915-0x1f3d)-4007)))do a=(7827500)while((0xfca/(-#'my name jeff'+(251-0x91)))+-#"MemeStrings")>=r do a=-a a=(715456)while r<=((75+-0x1f)+-#[[sexo 4 o filme]])do a=-a o[e[b]][e[u]]=e[_];break;end while 3194==(a)/(((-65+0x128)+-#[[algebra]]))do a=(10704785)while r>((0x7dbe/222)-0x72)do a=-a o[e[x]]=o[e[t]]-o[e[I]];break end while 3361==(a)/((0x6da3d/141))do S[e[u]]=o[e[x]];break end;break;end break;end while 2500==(a)/(((248771/0x4f)+-#[[Se men is so tasty]]))do a=(1764644)while(121-0x58)>=r do a=-a if not o[e[g]]then n=n+i;else n=e[s];end;break;end while 1178==(a)/((0x626+-76))do a=(7970105)while(-108+(0x109+-123))<r do a=-a local e=e[x]o[e]=o[e](o[e+i])break end while 2041==(a)/((4004+-0x63))do local n=e[c]o[n]=o[n](v(o,n+l,e[f]))break end;break;end break;end break;end break;end while 3855==(a)/((0xcdd-1661))do a=(7162727)while r<=(0x63f/39)do a=-a a=(1835229)while(0xbe/5)>=r do a=-a a=(1109416)while(115-0x4f)>=r do a=-a local e=e[b]o[e](o[e+i])break;end while 1801==(a)/((0x50b-675))do a=(6811984)while((0x217/5)+-#[[Axeo of the worst boronide forks Includes nocredito dumpedito nigedito]])<r do a=-a local e={o,e};e[i][e[h][g]]=e[l][e[h][j]]+e[i][e[h][s]];break end while(a)/((0xc37+-53))==2216 do local x=z[e[u]];local r;local l={};r=C({},{__index=function(n,e)local e=l[e];return e[1][e[2]];end,__newindex=function(o,e,n)local e=l[e]e[1][e[2]]=n;end;});for a=1,e[M]do n=n+i;local e=d[n];if e[(-126+0x7f)]==20 then l[a-1]={o,e[u]};else l[a-1]={S,e[k]};end;P[#P+1]=l;end;o[e[m]]=D(x,r,y);break end;break;end break;end while(a)/((1377-0x2ee))==2927 do a=(3489278)while(234/0x6)>=r do a=-a local i;local r;local a;o[e[b]]=e[t];n=n+l;e=d[n];o[e[c]]=e[t];n=n+l;e=d[n];o[e[w]]=#o[e[f]];n=n+l;e=d[n];o[e[x]]=e[u];n=n+l;e=d[n];a=e[m];r=o[a]i=o[a+2];if(i>0)then if(r>o[a+1])then n=e[k];else o[a+3]=r;end elseif(r<o[a+1])then n=e[s];else o[a+3]=r;end break;end while(a)/(((0x18d1-3217)+-#"Russian letters"))==1118 do a=(284635)while(0xb5-((0xc8+-45)+-#"Moonsex v5 eta"))<r do a=-a o[e[m]]=S[e[s]];n=n+l;e=d[n];o[e[g]]=#o[e[f]];n=n+l;e=d[n];S[e[u]]=o[e[x]];n=n+l;e=d[n];o[e[g]]=S[e[t]];n=n+l;e=d[n];o[e[x]]=#o[e[f]];n=n+l;e=d[n];S[e[t]]=o[e[x]];n=n+l;e=d[n];do return end;break end while 151==(a)/((-#'ip grabbing in progress'+(0x7a6+(7-0x39))))do local k;local r;local b;local a;o[e[x]]=y[e[p]];n=n+l;e=d[n];o[e[g]]=o[e[p]][e[R]];n=n+l;e=d[n];a=e[x];b=o[e[t]];o[a+1]=b;o[a]=b[e[q]];n=n+l;e=d[n];o[e[g]]=o[e[f]];n=n+l;e=d[n];o[e[m]]=o[e[s]];n=n+l;e=d[n];a=e[m]o[a]=o[a](v(o,a+l,e[f]))n=n+l;e=d[n];a=e[c];b=o[e[p]];o[a+1]=b;o[a]=b[e[I]];n=n+l;e=d[n];a=e[c]o[a]=o[a](o[a+i])n=n+l;e=d[n];r={o,e};r[i][r[h][x]]=r[l][r[h][I]]+r[i][r[h][t]];n=n+l;e=d[n];o[e[m]]=o[e[u]]%e[_];n=n+l;e=d[n];a=e[m]o[a]=o[a](o[a+i])n=n+l;e=d[n];b=e[p];k=o[b]for e=b+1,e[M]do k=k..o[e];end;o[e[x]]=k;n=n+l;e=d[n];r={o,e};r[i][r[h][x]]=r[l][r[h][M]]+r[i][r[h][u]];n=n+l;e=d[n];o[e[x]]=o[e[u]]%e[I];break end;break;end break;end break;end while(a)/((7743-0xf32))==1859 do a=(3640552)while(0x1b8/10)>=r do a=-a a=(1865990)while(0x97-109)>=r do a=-a local r;local a;y[e[s]]=o[e[m]];n=n+l;e=d[n];o[e[c]]=y[e[t]];n=n+l;e=d[n];a=e[x];r=o[e[t]];o[a+1]=r;o[a]=r[e[_]];n=n+l;e=d[n];o[e[w]]=e[t];n=n+l;e=d[n];a=e[w]o[a]=o[a](v(o,a+l,e[f]))n=n+l;e=d[n];o[e[b]]=o[e[u]][e[I]];n=n+l;e=d[n];o[e[m]]=o[e[s]][e[M]];n=n+l;e=d[n];o[e[m]]=y[e[t]];n=n+l;e=d[n];o[e[x]]=e[f];n=n+l;e=d[n];o[e[c]]=e[t];n=n+l;e=d[n];o[e[g]]=e[s];n=n+l;e=d[n];a=e[b]o[a]=o[a](v(o,a+l,e[u]))n=n+l;e=d[n];o[e[c]]=y[e[u]];n=n+l;e=d[n];o[e[c]]=o[e[f]][e[q]];n=n+l;e=d[n];o[e[x]]={};n=n+l;e=d[n];o[e[g]]=y[e[k]];n=n+l;e=d[n];o[e[x]]=e[f];n=n+l;e=d[n];o[e[c]]=e[s];n=n+l;e=d[n];o[e[c]]=e[u];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[s]))n=n+l;e=d[n];o[e[b]][e[t]]=o[e[j]];n=n+l;e=d[n];o[e[g]][e[f]]=e[I];n=n+l;e=d[n];a=e[m]o[a]=o[a](o[a+i])n=n+l;e=d[n];o[e[b]]=y[e[f]];n=n+l;e=d[n];a=e[x];r=o[e[u]];o[a+1]=r;o[a]=r[e[_]];n=n+l;e=d[n];o[e[m]]=e[u];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[k]))n=n+l;e=d[n];a=e[g];r=o[e[u]];o[a+1]=r;o[a]=r[e[_]];n=n+l;e=d[n];o[e[b]]=o[e[u]][e[I]];n=n+l;e=d[n];a=e[g]o[a]=o[a](v(o,a+l,e[t]))n=n+l;e=d[n];o[e[g]]=y[e[u]];n=n+l;e=d[n];o[e[c]]=o[e[u]][e[j]];n=n+l;e=d[n];a=e[w]o[a]=o[a](o[a+i])n=n+l;e=d[n];o[e[g]]=y[e[t]];n=n+l;e=d[n];o[e[w]]=o[e[k]][e[j]];n=n+l;e=d[n];o[e[x]]={};n=n+l;e=d[n];o[e[g]]=y[e[f]];n=n+l;e=d[n];o[e[g]]=o[e[f]][e[R]];n=n+l;e=d[n];o[e[w]]=y[e[p]];n=n+l;e=d[n];o[e[m]]=e[f];n=n+l;e=d[n];o[e[w]]=e[u];n=n+l;e=d[n];o[e[c]]=e[s];n=n+l;e=d[n];a=e[c]o[a]=o[a](v(o,a+l,e[u]))n=n+l;e=d[n];o[e[c]]=o[e[s]];n=n+l;e=d[n];a=e[m]o[a]=o[a](v(o,a+l,e[p]))n=n+l;e=d[n];o[e[c]][e[p]]=o[e[I]];n=n+l;e=d[n];o[e[b]][e[u]]=e[R];n=n+l;e=d[n];a=e[w]o[a]=o[a](o[a+i])n=n+l;e=d[n];o[e[g]]=y[e[f]];n=n+l;e=d[n];a=e[m];r=o[e[p]];o[a+1]=r;o[a]=r[e[q]];n=n+l;e=d[n];o[e[g]]=e[u];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[f]))n=n+l;e=d[n];a=e[x];r=o[e[s]];o[a+1]=r;o[a]=r[e[R]];n=n+l;e=d[n];o[e[b]]=o[e[f]][e[j]];n=n+l;e=d[n];a=e[w]o[a]=o[a](v(o,a+l,e[s]))n=n+l;e=d[n];o[e[c]]={};n=n+l;e=d[n];o[e[g]][e[k]]=o[e[R]];n=n+l;e=d[n];o[e[x]]=o[e[p]][e[q]];n=n+l;e=d[n];o[e[b]][e[s]]=o[e[R]];n=n+l;e=d[n];o[e[c]]=o[e[k]][e[I]];n=n+l;e=d[n];o[e[x]][e[u]]=o[e[_]];n=n+l;e=d[n];o[e[x]]=o[e[u]][e[j]];n=n+l;e=d[n];o[e[w]][e[f]]=o[e[j]];n=n+l;e=d[n];o[e[c]]=o[e[k]][e[q]];n=n+l;e=d[n];o[e[c]][e[u]]=o[e[M]];n=n+l;e=d[n];o[e[c]]=o[e[s]][e[I]];n=n+l;e=d[n];o[e[w]][e[t]]=o[e[_]];n=n+l;e=d[n];o[e[x]]=o[e[t]][e[_]];n=n+l;e=d[n];o[e[b]][e[p]]=o[e[q]];n=n+l;e=d[n];o[e[b]]=o[e[f]][e[_]];n=n+l;e=d[n];o[e[w]][e[t]]=o[e[I]];n=n+l;e=d[n];o[e[w]]=o[e[k]][e[R]];n=n+l;e=d[n];o[e[m]][e[t]]=o[e[R]];n=n+l;e=d[n];o[e[m]]=o[e[t]][e[M]];n=n+l;e=d[n];o[e[m]][e[t]]=o[e[_]];n=n+l;e=d[n];o[e[c]]=o[e[k]][e[_]];n=n+l;e=d[n];o[e[x]][e[s]]=o[e[q]];n=n+l;e=d[n];o[e[c]]=y[e[u]];n=n+l;e=d[n];o[e[b]]=o[e[u]][e[M]];n=n+l;e=d[n];o[e[c]]=y[e[t]];break;end while 2806==(a)/((-0x5c+757))do a=(344960)while r>(0x1f69/187)do a=-a local r;local a;o[e[c]][e[k]]=o[e[M]];n=n+l;e=d[n];o[e[b]]=y[e[u]];n=n+l;e=d[n];a=e[m];r=o[e[s]];o[a+1]=r;o[a]=r[e[R]];n=n+l;e=d[n];o[e[w]]=e[k];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[f]))n=n+l;e=d[n];a=e[g];r=o[e[p]];o[a+1]=r;o[a]=r[e[R]];n=n+l;e=d[n];o[e[b]]=o[e[k]];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[p]))n=n+l;e=d[n];o[e[x]][e[t]]=o[e[M]];n=n+l;e=d[n];a=e[x]o[a](o[a+i])break end while 2156==(a)/((-70+0xe6))do local a;o[e[g]]=o[e[s]][e[q]];n=n+l;e=d[n];o[e[g]]=o[e[s]][e[_]];n=n+l;e=d[n];o[e[c]]=o[e[t]][e[q]];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[u]))n=n+l;e=d[n];o[e[b]]={};n=n+l;e=d[n];o[e[g]]=y[e[k]];n=n+l;e=d[n];o[e[x]]=e[f];n=n+l;e=d[n];o[e[g]]=e[k];n=n+l;e=d[n];o[e[b]]=e[k];n=n+l;e=d[n];a=e[b]o[a]=o[a](v(o,a+l,e[f]))break end;break;end break;end while 2228==(a)/(((6760-0xd71)-0x695))do a=(3926774)while r<=((-0x42+120)+-#'whats up')do a=-a a=(1040135)while r>(142+(-0xa3+66))do a=-a local a;o[e[b]]=y[e[k]];n=n+l;e=d[n];o[e[w]]=e[u];n=n+l;e=d[n];o[e[x]]=e[f];n=n+l;e=d[n];o[e[b]]=e[t];n=n+l;e=d[n];a=e[w]o[a]=o[a](v(o,a+l,e[t]))n=n+l;e=d[n];o[e[b]]=y[e[f]];n=n+l;e=d[n];o[e[w]]=e[p];n=n+l;e=d[n];o[e[w]]=e[k];n=n+l;e=d[n];o[e[b]]=e[t];n=n+l;e=d[n];a=e[x]o[a]=o[a](v(o,a+l,e[t]))break end while 277==(a)/((0x1d77-3788))do local a;o[e[c]]=e[k];n=n+l;e=d[n];o[e[w]]=e[k];n=n+l;e=d[n];o[e[w]]=e[f];n=n+l;e=d[n];a=e[w]o[a]=o[a](v(o,a+l,e[s]))n=n+l;e=d[n];o[e[c]]=o[e[u]];n=n+l;e=d[n];o[e[m]]=o[e[k]][e[q]];n=n+l;e=d[n];o[e[x]]=o[e[f]][e[j]];n=n+l;e=d[n];o[e[x]]=o[e[t]][e[M]];n=n+l;e=d[n];o[e[b]]=o[e[t]][e[I]];n=n+l;e=d[n];o[e[b]]=o[e[k]][e[M]];break end;break;end while(a)/((0x6b64/12))==1714 do a=(1725515)while((-0x15+72)+-#[[yeet]])<r do a=-a y[e[s]]=o[e[m]];n=n+l;e=d[n];o[e[w]]={};n=n+l;e=d[n];o[e[g]]={};n=n+l;e=d[n];y[e[p]]=o[e[g]];n=n+l;e=d[n];o[e[c]]=y[e[t]];n=n+l;e=d[n];if(o[e[m]]~=e[j])then n=n+i;else n=e[u];end;break end while 2519==(a)/(((1418-0x2d3)+-#[[IP grabbed]]))do local a;o[e[c]]=y[e[p]];n=n+l;e=d[n];o[e[c]]=o[e[p]][e[_]];n=n+l;e=d[n];o[e[x]]={};n=n+l;e=d[n];o[e[c]][e[t]]=o[e[I]];n=n+l;e=d[n];o[e[w]]=y[e[k]];n=n+l;e=d[n];o[e[b]]=e[s];n=n+l;e=d[n];o[e[m]]=e[u];n=n+l;e=d[n];o[e[c]]=e[t];n=n+l;e=d[n];a=e[w]o[a]=o[a](v(o,a+l,e[u]))n=n+l;e=d[n];o[e[w]][e[p]]=o[e[_]];break end;break;end break;end break;end break;end break;end n=n+l;end;end);end;return D(W(),{},B())()end)_msec({[(-0x33+239)]='\115\116'..(function(e)return(e and'          ​')or'\114\105'or'\120\58'end)(((1975/0x4f)+-#'impulse was here omg')==((-#'If LocalPlayer equals Dumbass then while true do end'+(467-0x128))+-0x71))..'\110g',["         "]='\108\100'..(function(e)return(e and'​​     ​​  ')or'\101\120'or'\119\111'end)((0x483/231)==((0x70/7)+-#'While true'))..'\112',["         "]=(function(e)return(e and'                   ')and'\98\121'or'\100\120'end)((195/0x27)==(112-0x6b))..'\116\101',["             "]='\99'..(function(e)return(e and'   ​      ​      ​')and'\90\19\157'or'\104\97'end)((-123+0x80)==(-#'aint you nathaniel b'+(((-86+0xc7)+-#[[rule 2 ok]])-81)))..'\114',[(1121-(0xa710/72))]='\116\97'..(function(e)return(e and'            ​    ')and'\64\113'or'\98\108'end)(((7320/0xf4)+-24)==((0x999/189)+-#"whats up"))..'\101',["      ​​​       "]=(function(e)return(e and'               ')or'\115\117'or'\78\107'end)(((0x2c+-25)+-#'Fucking Retarted')==(60+(-0x14+-9)))..'\98',["          ​    "]='\99\111'..(function(e)return(e and'     ​​​         ')and'\110\99'or'\110\105\103\97'end)((63+-0x20)==(0x92+(-153+0x26)))..'\97\116',[(-#[[Cause I know the way to get em motivated]]+(0x5b9-765))]=(function(e,n)return(e and'                ')and'\48\159\158\188\10'or'\109\97'end)((0x177/75)==(600/0x64))..'\116\104',[((2821-0x595)+-0x47)]=(function(n,e)return((635/0x7f)==((-88+0x75)+-#"Obfuscated by my ass hurts")and'\48'..'\195'or n..((not'\20\95\69'and'\90'..'\180'or e)))or'\199\203\95'end),["   ​  ​​ "]='\105\110'..(function(e,n)return(e and'           ')and'\90\115\138\115\15'or'\115\101'end)(((-0x18+41)+-#[[Monkey balls]])==(-#'if syn then syn dot request get beliveri12 coma nicuse ass end'+((-98+0x128)+-105)))..'\114\116',["    ​           ​  "]='\117\110'..(function(e,n)return(e and'       ​     ')or'\112\97'or'\20\38\154'end)(((-#'chicken quesadillas are pretty good ngl'+(0x2e230/254))/141)==(0xaa-139))..'\99\107',["           "]='\115\101'..(function(e)return(e and'            ')and'\110\112\99\104'or'\108\101'end)((120+-0x73)==((0x9b-114)+-#"zykem krul"))..'\99\116',["                  "]='\116\111\110'..(function(e,n)return(e and'     ​         ')and'\117\109\98'or'\100\97\120\122'end)((-0x2e+51)==(((-0x34+94)+-#"mald")+-0x21))..'\101\114'},{["​        "]=((getfenv)or(function()return(_ENV)end))},((getfenv)or(function()return(_ENV)end))()) end)()
+
+-----------
+print("success all skins and items unlocked!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--ok hi u are copy pasting i see u
+-- my code is messy
+--no judge
+--but
+--it is good
+--and funny
+--when
+--people
+--rage
+--while
+--use
+--my
+--script
+--i
+--will
+--keep
+--open
+--source
+--besides
+--the
+--item
+--unlocker
+--it
+--isnt
+--mine
+--but
+--op
+--and
+--fe
+--idk
+--if
+--they
+--will
+--patch
+--so
+--if
+--it
+--doesnt
+--work
+--dont
+--blame
+--me
+--oh well
+--end
+--of
+--this
+--i
+--think
+--there
+--is
+--alot
+--of
+--lines
+--lol
+--this
+--isnt
+--needed
+--u
+--can
+--delete
+--this
+--if
+--u
+--want
+--i guess
+--not
+--really
+-important
+--well
+--bye
+print("loaded XD")
+
+
+
