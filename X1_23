@@ -1,7 +1,5 @@
 while true do
-
 wait()
-
 game:GetService("ReplicatedStorage").Events.Tap:FireServer(1)
 
 game:GetService("ReplicatedStorage").Events.Tap:FireServer(1)
