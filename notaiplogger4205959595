@@ -1,1 +1,62 @@
+--discord.com/api/webhooks searcher alert btw this dont have no webhooks mf
 
+function(state)
+    if state then
+_G.w = true
+while _G.w == true do
+wait()
+for _,v in pairs(game.Workspace:GetDescendants()) do
+if v.Name == "Trashcan" then
+if v.CFrame == CFrame.new(99.1480865, 15.8500023, 53.1413269, -4.30345535e-05, -0.984805167, 0.173663586, -1.00000012, 4.27365303e-05, -3.75509262e-06, -3.75509262e-06, -0.173663586, -0.984805346) then
+fireclickdetector(v.ClickDetector)
+end
+end
+end
+wait(0.5)
+local a = game.Players.LocalPlayer.Character:FindFirstChildOfClass"Tool"
+local w = game.Players.LocalPlayer.Backpack:FindFirstChildOfClass"Tool"
+local z = game:GetService("Workspace").DumpsterMoneyMaker.MoneyHitbox
+local v = game:GetService("Workspace").DumpsterMoneyMaker.MoneyHitbox.CFrame
+if w then
+w.Parent = game.Players.LocalPlayer.Character
+wait()
+z.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+elseif a then
+wait()
+z.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end
+end
+while _G.w == false do
+wait()
+game:GetService("Workspace").DumpsterMoneyMaker.MoneyHitbox.CFrame = v
+end
+    else
+_G.w = false
+while _G.w == true do
+wait()
+for _,v in pairs(game.Workspace:GetDescendants()) do
+if v.Name == "Trashcan" then
+if v.CFrame == CFrame.new(99.1480865, 15.8500023, 53.1413269, -4.30345535e-05, -0.984805167, 0.173663586, -1.00000012, 4.27365303e-05, -3.75509262e-06, -3.75509262e-06, -0.173663586, -0.984805346) then
+fireclickdetector(v.ClickDetector)
+end
+end
+end
+wait(0.5)
+local a = game.Players.LocalPlayer.Character:FindFirstChildOfClass"Tool"
+local w = game.Players.LocalPlayer.Backpack:FindFirstChildOfClass"Tool"
+local z = game:GetService("Workspace").DumpsterMoneyMaker.MoneyHitbox
+if w then
+w.Parent = game.Players.LocalPlayer.Character
+wait()
+z.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+elseif a then
+wait()
+z.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end
+end
+while _G.w == false do
+wait()
+game:GetService("Workspace").DumpsterMoneyMaker.MoneyHitbox.CFrame = CFrame.new(-123.569946, 20, 164.801575, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+end
+    end
+end)
