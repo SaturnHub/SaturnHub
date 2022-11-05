@@ -1,6 +1,6 @@
 --discord.com/api/webhooks searcher alert btw this dont have no webhooks mf
 
-function(state)
+
     if state then
 _G.w = true
 while _G.w == true do
