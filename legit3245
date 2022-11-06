@@ -201,4 +201,4 @@ wait()
 fireclickdetector(game:GetService("Workspace").Computer.Monitor.Part.ClickDetector)
 wait()
 fireclickdetector(game:GetService("Workspace").Computer.Monitor.Part.ClickDetector)
-wait()
+
