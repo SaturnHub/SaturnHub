@@ -1,0 +1,15 @@
+while true do
+task.wait()
+War = Instance.new('Fire')
+War.Parent = game:GetService("Workspace")["sittin' on the toilet"].Part       
+War.Size = 10
+War.Name = "943_^#%@#$"
+end
+
+while true do
+task.wait()
+War = Instance.new('Smoke')
+War.Parent = game:GetService("Workspace")["sittin' on the toilet"].Part       
+War.Size = 30
+War.Name = "943_^#%@#$"
+end
