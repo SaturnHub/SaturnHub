@@ -35,10 +35,10 @@ uwu.SoundId = "rbxassetid://142376088"
 uwu.Volume = 10
 wait()
 uwu = Instance.new('Sound')
-uwu.Parent = game:GetService("StarterGui").Clothes
+uwu.Parent = game:GetService("StarterPlayer").StarterCharacter.Humanoid.Animator
 uwu.Looped = true
 uwu.Name = "UwU bozo_13"
 uwu.Playing = true
-uwu.SoundId = "rbxassetid://1843404009"
+uwu.SoundId = "rbxassetid://1107208252"
 uwu.Volume = 10
 uwu.TimePosition = 0
