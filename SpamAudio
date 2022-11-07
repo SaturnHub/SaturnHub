@@ -1,4 +1,4 @@
---game:GetService("StarterGui").Clothes
+
 uwu = Instance.new('Sound')
 uwu.Parent = game:GetService("ReplicatedStorage")
 uwu.Looped = true
