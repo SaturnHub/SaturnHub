@@ -1,1 +1,36 @@
 
+uwu = Instance.new('Sound')
+uwu.Parent = game:GetService("ReplicatedStorage")
+uwu.Looped = true
+uwu.Name = "UwU bozo"
+uwu.Playing = true
+uwu.SoundId = "rbxassetid://4393778801"
+uwu.Volume = 10
+uwu.TimePosition = 0
+wait()
+uwu = Instance.new('Sound')
+uwu.Parent = game:GetService("Players")
+uwu.Looped = true
+uwu.Name = "UwU bozo_13"
+uwu.Playing = true
+uwu.SoundId = "rbxassetid://3722232094"
+uwu.Volume = 10
+uwu.TimePosition = 0
+wait()
+uwu = Instance.new('Sound')
+uwu.Parent = game:GetService("ReplicatedFirst")
+uwu.Looped = true
+uwu.Name = "UwU bozo_13"
+uwu.Playing = true
+uwu.SoundId = "rbxassetid://5104257032"
+uwu.Volume = 10
+uwu.TimePosition = 0
+wait()
+uwu = Instance.new('Sound')
+uwu.Parent = game:GetService("Chat")
+uwu.Looped = true
+uwu.Name = "UwU bozo_13"
+uwu.Playing = true
+uwu.SoundId = "rbxassetid://142376088"
+uwu.Volume = 10
+uwu.TimePosition = 0
