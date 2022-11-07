@@ -1,5 +1,5 @@
 while true do
-task.wait()
+task.wait(10)
 uwu = Instance.new('Sound')
 uwu.Parent = game:GetService("ReplicatedStorage")
 uwu.Looped = true
