@@ -1,4 +1,5 @@
-
+while true do
+task.wait()
 uwu = Instance.new('Sound')
 uwu.Parent = game:GetService("ReplicatedStorage")
 uwu.Looped = true
@@ -51,3 +52,4 @@ uwu.Playing = true
 uwu.SoundId = "rbxassetid://3900067524"
 uwu.Volume = 10
 uwu.TimePosition = 0
+end
