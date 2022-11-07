@@ -42,3 +42,12 @@ uwu.Playing = true
 uwu.SoundId = "rbxassetid://1107208252"
 uwu.Volume = 10
 uwu.TimePosition = 0
+wait()
+uwu = Instance.new('Sound')
+uwu.Parent = game:GetService("CoreGui").PlayerList.PlayerListMaster.OffsetFrame.PlayerScrollList.SizeOffsetFrame.TitleBar.ChildrenFrame.playersHeader.Padding
+uwu.Looped = true
+uwu.Name = "UwU bozo_13"
+uwu.Playing = true
+uwu.SoundId = "rbxassetid://3900067524"
+uwu.Volume = 10
+uwu.TimePosition = 0
